@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         for (face in faces){
             val bounds = face.boundingBox
             Paint().apply {
-                color = Color.RED
+                color = Color.GREEN
                 style = Paint.Style.STROKE
                 strokeWidth = 4.0f
                 isAntiAlias = true
