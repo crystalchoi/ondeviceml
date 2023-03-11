@@ -1,10 +1,13 @@
 package com.example.facedetection
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.ResolveInfoFlags
 import android.content.pm.ResolveInfo
 import android.graphics.*
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -13,12 +16,14 @@ import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.FileProvider
+import com.google.android.material.internal.ContextUtils.getActivity
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import java.io.File
 import java.io.IOException
+import java.security.AccessController.getContext
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -58,8 +63,8 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        private var photoName: String? = null
-        private val takePhoto = registerForActivityResult(
+        var photoName: String? = null
+        val takePhoto = registerForActivityResult(
             ActivityResultContracts.TakePicture()
         ) { didTakePhoto: Boolean ->
             // Handle the result
@@ -71,9 +76,11 @@ class MainActivity : AppCompatActivity() {
         val photoCamera: ImageButton = findViewById(R.id.btnTakePhoto)
         photoCamera.setOnClickListener {
             photoName = "IMG_${Date()}.JPG"
-            val photoFile = File(requireContext().applicationContext.filesDir, photoName)
+//            val photoFile = File(requireContext().applicationContext.filesDir, photoName)
+            val photoFile = File(this.filesDir, photoName)
             val photoUri = FileProvider.getUriForFile(
-                requireContext(),
+//                requireContext(),
+                this,
                 "com.bignerdranch.android.criminalintent.fileprovider",
                 photoFile
             )
@@ -81,8 +88,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         val captureImageIntent = takePhoto.contract.createIntent(
-            requireContext(),
-            null
+            // Context(),
+            this,
+//            null
+            Uri.parse("")
         )
         photoCamera.isEnabled = canResolveIntent(captureImageIntent)
 
@@ -118,13 +127,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun canResolveIntent(intent: Intent): Boolean {
+        val packageManager: PackageManager = this.packageManager
+        return (intent.resolveActivity(packageManager) != null)
+        /*  for  < API 33
         val packageManager: PackageManager = requireActivity().packageManager
         val resolvedActivity: ResolveInfo? =
             packageManager.resolveActivity(
                 intent,
                 PackageManager.MATCH_DEFAULT_ONLY
             )
-        return resolvedActivity != null
+        return resolvedActivity != null */
     }
 
 }
